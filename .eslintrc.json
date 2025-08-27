@@ -1,0 +1,15 @@
+{
+  "extends": "google",
+  "parserOptions": {
+    "ecmaVersion": 2020
+  },
+  "env": {
+    "node": true,
+    "jest": true
+  },
+  "rules": {
+    "require-jsdoc": "off",
+    "valid-jsdoc": "off",
+    "max-len": ["error", { "code": 120 }]
+  }
+}

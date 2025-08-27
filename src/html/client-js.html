@@ -1,0 +1,90 @@
+<script>
+  /**
+   * Adds event listeners to the sidebar's HTML elements.
+   * This function is called once the window has loaded.
+   */
+  window.addEventListener('load', function() {
+    // Action buttons
+    document.getElementById('check-apps-btn').addEventListener('click', checkApplications);
+    document.getElementById('generate-reports-btn').addEventListener('click', generateReports);
+
+    // Settings form
+    document.getElementById('save-settings-btn').addEventListener('click', saveSettings);
+
+    // Load initial settings when the sidebar opens
+    loadSettings();
+  });
+
+  /**
+   * A generic success handler to provide feedback to the user.
+   * @param {string} message The message to display.
+   */
+  function onSuccess(message) {
+    google.script.host.showNotification(message || 'Operation successful!');
+  }
+
+  /**
+   * A generic failure handler to display errors to the user.
+   * @param {Error} error The error object returned from the server.
+   */
+  function onFailure(error) {
+    google.script.host.showAlert('An error occurred: ' + error.message);
+  }
+
+  /**
+   * Calls the server-side 'checkApplications' function.
+   */
+  function checkApplications() {
+    google.script.host.showNotification('Checking applications...');
+    google.script.run
+      .withSuccessHandler(onSuccess)
+      .withFailureHandler(onFailure)
+      .checkApplications();
+  }
+
+  /**
+   * Calls the server-side 'generateReports' function.
+   */
+  function generateReports() {
+    google.script.host.showNotification('Generating reports...');
+    google.script.run
+      .withSuccessHandler(onSuccess)
+      .withFailureHandler(onFailure)
+      .generateReports();
+  }
+
+  /**
+   * Calls the server-side function to get user settings and populates the form.
+   */
+  function loadSettings() {
+    google.script.run
+      .withSuccessHandler(function(settings) {
+        if (settings) {
+          document.getElementById('user-name').value = settings.name || '';
+          document.getElementById('user-phone').value = settings.phone || '';
+          document.getElementById('reminder-days').value = settings.reminderDays || 8;
+        }
+      })
+      .withFailureHandler(onFailure)
+      .getUserSettings(); // This function needs to be created on the server side
+  }
+
+  /**
+   * Gathers settings from the form and calls the server-side function to save them.
+   */
+  function saveSettings() {
+    const settings = {
+      name: document.getElementById('user-name').value,
+      phone: document.getElementById('user-phone').value,
+      reminderDays: document.getElementById('reminder-days').value
+    };
+
+    google.script.host.showNotification('Saving settings...');
+    google.script.run
+      .withSuccessHandler(function() {
+        onSuccess('Settings saved successfully!');
+      })
+      .withFailureHandler(onFailure)
+      .saveUserSettings(settings); // This function also needs to be created on the server side
+  }
+</script>

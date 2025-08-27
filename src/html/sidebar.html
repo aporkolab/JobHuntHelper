@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <!-- Including the CSS file -->
+    <?!= include('stylesheet'); ?>
+  </head>
+  <body>
+    <div class="sidebar-container">
+      <div class="header">
+        <h1>Job Helper</h1>
+        <p>Your smart job application tracker.</p>
+      </div>
+
+      <div class="section">
+        <h2>Actions</h2>
+        <button id="check-apps-btn" class="action-btn">Check Applications</button>
+        <button id="generate-reports-btn" class="action-btn">Generate Reports</button>
+      </div>
+
+      <div class="section">
+        <h2>Settings</h2>
+        <div class="form-group">
+          <label for="user-name">Your Name</label>
+          <input type="text" id="user-name" name="user-name">
+        </div>
+        <div class="form-group">
+          <label for="user-phone">Your Phone</label>
+          <input type="text" id="user-phone" name="user-phone">
+        </div>
+        <div class="form-group">
+          <label for="reminder-days">Reminder Days</label>
+          <input type="number" id="reminder-days" name="reminder-days" min="1" max="30">
+        </div>
+        <button id="save-settings-btn">Save Settings</button>
+      </div>
+
+      <div class="footer">
+        <p>Powered by Google Apps Script</p>
+      </div>
+    </div>
+
+    <!-- Including the client-side JavaScript file -->
+    <?!= include('client-js'); ?>
+  </body>
+</html>

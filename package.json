@@ -1,0 +1,28 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "This repository contains a Google Apps Script designed to help job seekers manage and track their job applications within a Google Spreadsheet. The script automates follow-ups, manages application statuses, and organizes job search efforts with customizable settings. For a detailed explanation and walkthrough, check out the associated Medium blog post at [my Medium blog](https://slumbersolver.medium.com/job-search-juggler-automate-your-application-follow-ups-bfbf6631a39a).",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint src/**/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/APorkolab/JobHuntHelper.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/APorkolab/JobHuntHelper/issues"
+  },
+  "homepage": "https://github.com/APorkolab/JobHuntHelper#readme",
+  "devDependencies": {
+    "@google/clasp": "^3.0.6-alpha",
+    "eslint": "^9.34.0",
+    "eslint-config-google": "^0.14.0",
+    "jest": "^30.0.5"
+  }
+}
