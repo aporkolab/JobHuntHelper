@@ -6,7 +6,7 @@
  * spreadsheet layout.
  */
 
-const CONFIG = {
+globalThis.CONFIG = Object.freeze({
   // The name of the sheet the script should operate on.
   sheetName: 'Applications', // A more descriptive name for the sheet.
 
@@ -56,4 +56,4 @@ const CONFIG = {
       }
     }
   }
-};
+});

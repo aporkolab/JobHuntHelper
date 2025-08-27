@@ -2,6 +2,8 @@
  * @fileoverview A module for interacting with Google Services like Calendar and Gmail.
  */
 
+/* exported createCalendarFollowUpEvent, createFollowUpEmailDraft */
+
 /**
  * Finds the next workday from a given date, skipping weekends.
  * @param {Date} date The starting date.
@@ -95,8 +97,8 @@ function createFollowUpEmailDraft(application) {
     try {
       const draftMessage = draft.getMessage();
       return draftMessage.getTo() === contactEmail && draftMessage.getSubject() === subject;
-    } catch (e) {
-      // Some messages might not be accessible and throw an error.
+    // eslint-disable-next-line no-unused-vars
+    } catch (_e) {
       return false;
     }
   });

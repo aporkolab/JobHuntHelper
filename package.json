@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "lint": "eslint src/**/*.js"
+    "lint": "eslint . --ext .js --max-warnings=0"
   },
   "repository": {
     "type": "git",
@@ -23,6 +23,14 @@
     "@google/clasp": "^3.0.6-alpha",
     "eslint": "^9.34.0",
     "eslint-config-google": "^0.14.0",
-    "jest": "^30.0.5"
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-n": "^17.21.3",
+    "eslint-plugin-promise": "^7.2.1",
+    "jest": "^30.0.5",
+    "prettier": "^3.6.2"
+  },
+  "dependencies": {
+    "fix": "^0.0.6"
   }
 }

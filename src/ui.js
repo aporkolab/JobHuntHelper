@@ -3,6 +3,8 @@
  * including menus and sidebars.
  */
 
+/* exported createCustomMenu, showSidebar */
+
 /**
  * Creates a custom menu in the spreadsheet UI when the document is opened.
  * This function is called by the onOpen simple trigger.

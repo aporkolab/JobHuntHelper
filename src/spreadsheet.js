@@ -4,6 +4,8 @@
  * cleaner and easier to test.
  */
 
+/* exported getSheet_, getColumnIndices_, getApplicationData, setRowBackground */
+
 /**
  * A cache for column indices to avoid re-reading the header row repeatedly.
  * @type {Object<string, number> | null}

@@ -2,6 +2,8 @@
  * @fileoverview Utility functions for the project.
  */
 
+/* exported include */
+
 /**
  * Includes the content of another HTML file.
  * This is used to bundle CSS and client-side JS into the main sidebar HTML file.

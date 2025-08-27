@@ -4,6 +4,10 @@
  * from the other modules.
  */
 
+/* exported onOpen, setupTriggers, checkApplications, generateReports, saveUserSettings, getUserSettings */
+/* global createCustomMenu, getColumnIndices_, getApplicationData, createCalendarFollowUpEvent, createFollowUpEmailDraft, getSheet_ */
+
+
 // Simple trigger that runs when the spreadsheet is opened.
 function onOpen() {
   createCustomMenu();
