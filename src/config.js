@@ -25,7 +25,8 @@ globalThis.CONFIG = Object.freeze({
   },
 
   // General behavior settings
-  reminderDaysAfter: 8, // Days to wait before sending a follow-up reminder.
+  reminderDaysAfter: 8, // Default days to wait before sending a follow-up reminder.
+  reminderDaysLimits: { min: 1, max: 30 }, // Allowed range for the user-configurable reminder days.
 
   // UI/Style settings
   colors: {
@@ -35,11 +36,11 @@ globalThis.CONFIG = Object.freeze({
   },
 
   // User-specific settings.
-  // In the future, these will be managed via a UI and stored in PropertiesService.
+  // Name, phone and reminder days set in the Control Panel sidebar (PropertiesService) take precedence.
   user: {
     // The ID of the calendar to create events in. 'primary' is the user's default calendar.
     calendarId: 'primary',
-    // These will be replaced with user's actual data in email drafts.
+    // Fallback values for the email drafts when nothing has been saved in the Control Panel.
     name: '[YOUR NAME]',
     phone: '[YOUR PHONE NUMBER]',
   },

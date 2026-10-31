@@ -1,12 +1,12 @@
 {
-  "timeZone": "America/New_York",
-  "dependencies": {},
-  "exceptionLogging": "STACKDRIVER",
-  "runtimeVersion": "V8",
+  "scriptId": "<YOUR_SCRIPT_ID>",
   "rootDir": "src",
   "filePushOrder": [
     "src/config.js",
+    "src/utils.js",
+    "src/settings.js",
     "src/spreadsheet.js",
+    "src/followup.js",
     "src/services.js",
     "src/ui.js",
     "src/main.js"

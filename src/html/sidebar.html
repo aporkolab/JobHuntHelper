@@ -3,7 +3,7 @@
   <head>
     <base target="_top">
     <!-- Including the CSS file -->
-    <?!= include('stylesheet'); ?>
+    <?!= include('html/stylesheet'); ?>
   </head>
   <body>
     <div class="sidebar-container">
@@ -35,12 +35,14 @@
         <button id="save-settings-btn">Save Settings</button>
       </div>
 
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+
       <div class="footer">
         <p>Powered by Google Apps Script</p>
       </div>
     </div>
 
     <!-- Including the client-side JavaScript file -->
-    <?!= include('client-js'); ?>
+    <?!= include('html/client-js'); ?>
   </body>
 </html>
