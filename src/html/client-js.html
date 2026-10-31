@@ -16,11 +16,23 @@
   });
 
   /**
-   * A generic success handler to provide feedback to the user.
+   * Shows a status message in the sidebar.
+   * google.script.host has no notification/alert API, so feedback is rendered in the page itself.
    * @param {string} message The message to display.
+   * @param {boolean} isError Whether the message describes an error.
    */
-  function onSuccess(message) {
-    google.script.host.showNotification(message || 'Operation successful!');
+  function setStatus(message, isError) {
+    const status = document.getElementById('status');
+    status.textContent = message;
+    status.classList.toggle('error', Boolean(isError));
+  }
+
+  /**
+   * A generic success handler to provide feedback to the user.
+   * @param {*} result The value returned by the server; shown when it is a string.
+   */
+  function onSuccess(result) {
+    setStatus(typeof result === 'string' && result ? result : 'Operation successful!', false);
   }
 
   /**
@@ -28,14 +40,14 @@
    * @param {Error} error The error object returned from the server.
    */
   function onFailure(error) {
-    google.script.host.showAlert('An error occurred: ' + error.message);
+    setStatus('An error occurred: ' + (error && error.message ? error.message : error), true);
   }
 
   /**
    * Calls the server-side 'checkApplications' function.
    */
   function checkApplications() {
-    google.script.host.showNotification('Checking applications...');
+    setStatus('Checking applications...', false);
     google.script.run
       .withSuccessHandler(onSuccess)
       .withFailureHandler(onFailure)
@@ -46,7 +58,7 @@
    * Calls the server-side 'generateReports' function.
    */
   function generateReports() {
-    google.script.host.showNotification('Generating reports...');
+    setStatus('Generating reports...', false);
     google.script.run
       .withSuccessHandler(onSuccess)
       .withFailureHandler(onFailure)
@@ -66,7 +78,7 @@
         }
       })
       .withFailureHandler(onFailure)
-      .getUserSettings(); // This function needs to be created on the server side
+      .getUserSettings();
   }
 
   /**
@@ -79,12 +91,12 @@
       reminderDays: document.getElementById('reminder-days').value
     };
 
-    google.script.host.showNotification('Saving settings...');
+    setStatus('Saving settings...', false);
     google.script.run
       .withSuccessHandler(function() {
         onSuccess('Settings saved successfully!');
       })
       .withFailureHandler(onFailure)
-      .saveUserSettings(settings); // This function also needs to be created on the server side
+      .saveUserSettings(settings);
   }
 </script>

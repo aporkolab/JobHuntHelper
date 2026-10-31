@@ -1,11 +1,12 @@
 {
-  "name": "app",
+  "name": "job-hunt-helper",
   "version": "1.0.0",
-  "description": "This repository contains a Google Apps Script designed to help job seekers manage and track their job applications within a Google Spreadsheet. The script automates follow-ups, manages application statuses, and organizes job search efforts with customizable settings. For a detailed explanation and walkthrough, check out the associated Medium blog post at [my Medium blog](https://slumbersolver.medium.com/job-search-juggler-automate-your-application-follow-ups-bfbf6631a39a).",
-  "main": "index.js",
+  "description": "Google Apps Script that tracks job applications in a Google Spreadsheet and automates follow-ups.",
   "scripts": {
+    "lint": "eslint . --max-warnings=0",
     "test": "jest",
-    "lint": "eslint . --ext .js --max-warnings=0"
+    "check": "npm run lint && npm test",
+    "push": "clasp push"
   },
   "repository": {
     "type": "git",
@@ -13,24 +14,22 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "type": "commonjs",
   "bugs": {
     "url": "https://github.com/APorkolab/JobHuntHelper/issues"
   },
   "homepage": "https://github.com/APorkolab/JobHuntHelper#readme",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@google/clasp": "^3.4.1",
-    "eslint": "^9.34.0",
-    "eslint-config-google": "^0.14.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-n": "^17.21.3",
-    "eslint-plugin-promise": "^7.2.1",
-    "jest": "^30.0.5",
-    "prettier": "^3.6.2"
+    "eslint": "^10.14.0",
+    "globals": "^17.13.0",
+    "jest": "^30.5.2",
+    "prettier": "^3.9.10"
   },
-  "dependencies": {
-    "fix": "^0.0.6"
+  "private": true,
+  "engines": {
+    "node": ">=22.13"
   }
 }
