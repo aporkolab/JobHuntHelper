@@ -4,8 +4,10 @@
  * from the other modules.
  */
 
-/* exported onOpen, setupTriggers, checkApplications, generateReports, saveUserSettings, getUserSettings */
-/* global createCustomMenu, getColumnIndices_, getApplicationData, createCalendarFollowUpEvent, createFollowUpEmailDraft, getSheet_ */
+/* exported onOpen, setupTriggers, checkApplications, generateReports */
+/* global createCustomMenu, getColumnIndices_, getApplicationData, createCalendarFollowUpEvent,
+   createFollowUpEmailDraft, getSheet_, getEffectiveSettings_, toApplication_, isFollowUpDue_,
+   notifyUser_, toDate_, toText_ */
 
 
 // Simple trigger that runs when the spreadsheet is opened.
@@ -33,82 +35,71 @@ function setupTriggers() {
     .atHour(8)
     .create();
 
-  SpreadsheetApp.getUi().alert('Triggers have been set up successfully. The script will automatically check your applications every morning.');
+  notifyUser_('Triggers have been set up successfully. ' +
+    'The script will automatically check your applications every morning.');
 }
 
 /**
  * The core function that checks all job applications and determines if a follow-up is needed.
+ * Runs both from the menu/sidebar and from the daily time-driven trigger (where no UI is available).
+ * @returns {string} A summary of the check.
  */
 function checkApplications() {
+  const settings = getEffectiveSettings_();
   const indices = getColumnIndices_();
   const { data, backgrounds } = getApplicationData();
+  const sheet = getSheet_();
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const errors = [];
+  let processed = 0;
 
   data.forEach((row, rowIndex) => {
-    // Construct a structured object for the current application
-    const application = {
-      companyName: row[indices.companyName],
-      position: row[indices.position],
-      applicationForm: row[indices.applicationForm],
-      language: row[indices.language],
-      applicationTime: row[indices.applicationTime],
-      warningMessage: row[indices.warningMessage],
-      interestedMessages: row[indices.interestedMessages],
-      contactName: row[indices.contactName],
-      contactEmail: row[indices.contactEmail],
-      rowNumber: rowIndex + 2 // For logging/debugging
-    };
+    const application = toApplication_(row, indices, rowIndex + 2);
 
     // --- Validation ---
-    if (!application.applicationTime || !application.companyName) {
-      Logger.log(`Skipping row ${application.rowNumber} due to missing Application Time or Company Name.`);
+    if (!toDate_(application.applicationTime) || !toText_(application.companyName)) {
+      Logger.log(`Skipping row ${application.rowNumber} due to missing or invalid Application Time or Company Name.`);
       return;
     }
 
-    // --- Condition Checks ---
-    const appDate = new Date(application.applicationTime);
-    appDate.setHours(0, 0, 0, 0);
-    const daysDiff = Math.floor((today - appDate) / (1000 * 3600 * 24));
-
-    const warningCellBg = backgrounds[rowIndex][indices.warningMessage];
-    const interestedCellBg = backgrounds[rowIndex][indices.interestedMessages];
-
-    const needsFollowUp = warningCellBg === CONFIG.colors.followUpNeeded;
-    const isEmailApplication = application.applicationForm && application.applicationForm.toLowerCase().includes('e-mail');
-    const followUpSent = interestedCellBg === CONFIG.colors.followUpSent;
-    const responseReceived = warningCellBg === CONFIG.colors.responseReceived;
+    if (!isFollowUpDue_(application, backgrounds[rowIndex], indices, today, settings.reminderDays)) {
+      return;
+    }
 
     // --- Action ---
-    if (isEmailApplication && needsFollowUp && !followUpSent && !responseReceived && daysDiff >= CONFIG.reminderDaysAfter) {
-      Logger.log(`Action needed for ${application.companyName} (Row ${application.rowNumber}).`);
-      try {
-        createCalendarFollowUpEvent(application);
-        createFollowUpEmailDraft(application);
-        // Mark that a follow-up has been processed by changing the background color
-        const sheet = getSheet_();
-        sheet.getRange(rowIndex + 2, indices.interestedMessages + 1).setBackground(CONFIG.colors.followUpSent);
-      } catch (e) {
-        Logger.log(`Error processing application for ${application.companyName}: ${e.message}`);
-        SpreadsheetApp.getUi().alert(`An error occurred while processing '${application.companyName}': ${e.message}`);
-      }
+    Logger.log(`Action needed for ${application.companyName} (Row ${application.rowNumber}).`);
+    try {
+      createCalendarFollowUpEvent(application, settings);
+      createFollowUpEmailDraft(application, settings);
+      // Mark that a follow-up has been processed by changing the background color
+      sheet.getRange(application.rowNumber, indices.interestedMessages + 1).setBackground(CONFIG.colors.followUpSent);
+      processed++;
+    } catch (e) {
+      Logger.log(`Error processing application for ${application.companyName}: ${e.message}`);
+      errors.push(`'${application.companyName}': ${e.message}`);
     }
   });
 
-  SpreadsheetApp.getUi().alert('Application check complete.');
+  let summary = `Application check complete. Follow-ups created: ${processed}.`;
+  if (errors.length > 0) {
+    summary += `\nErrors (${errors.length}):\n${errors.join('\n')}`;
+  }
+  notifyUser_(summary);
+  return summary;
 }
 
 /**
  * Generates a report sheet with charts summarizing application data.
+ * @returns {string} A summary message.
  */
 function generateReports() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   let reportSheet = ss.getSheetByName(CONFIG.reports.sheetName);
 
   if (reportSheet) {
-    // Clear existing charts if the sheet exists
-    const charts = reportSheet.getCharts();
-    charts.forEach(chart => reportSheet.removeChart(chart));
+    // Start from a clean sheet so that stale data from a previous run does not linger.
+    reportSheet.getCharts().forEach(chart => reportSheet.removeChart(chart));
+    reportSheet.clear();
   } else {
     reportSheet = ss.insertSheet(CONFIG.reports.sheetName);
   }
@@ -116,18 +107,15 @@ function generateReports() {
   const appSheet = getSheet_();
   const lastRow = appSheet.getLastRow();
   if (lastRow < 2) {
-    reportSheet.appendRow(['No application data to report.']);
-    return;
+    const message = 'No application data to report.';
+    reportSheet.appendRow([message]);
+    return message;
   }
 
   // --- Chart 1: Applications by Language ---
   const indices = getColumnIndices_();
   const langData = appSheet.getRange(2, indices.language + 1, lastRow - 1, 1).getValues();
-  const langCounts = langData.reduce((acc, [lang]) => {
-    lang = lang || 'Not Specified';
-    acc[lang] = (acc[lang] || 0) + 1;
-    return acc;
-  }, {});
+  const langCounts = countByLanguage_(langData);
 
   const langChartData = [['Language', 'Count'], ...Object.entries(langCounts)];
   const langChartRange = reportSheet.getRange(2, 2, langChartData.length, 2);
@@ -142,32 +130,21 @@ function generateReports() {
 
   reportSheet.insertChart(pieChart);
 
-  SpreadsheetApp.setActiveSheet(reportSheet);
-  SpreadsheetApp.getUi().alert('Reports have been generated successfully.');
+  ss.setActiveSheet(reportSheet);
+  const message = 'Reports have been generated successfully.';
+  notifyUser_(message);
+  return message;
 }
 
 /**
- * Saves user-specific settings to PropertiesService.
- * @param {object} settings The settings object to save.
+ * Counts applications per language.
+ * @param {any[][]} langData Single-column values of the Language column.
+ * @returns {Object<string, number>} Count per language; empty cells are counted as 'Not Specified'.
  */
-function saveUserSettings(settings) {
-  const userProperties = PropertiesService.getUserProperties();
-  userProperties.setProperties({
-    'userName': settings.name,
-    'userPhone': settings.phone,
-    'reminderDays': settings.reminderDays,
-  });
-}
-
-/**
- * Retrieves user-specific settings from PropertiesService.
- * @returns {object} The user's settings.
- */
-function getUserSettings() {
-  const userProperties = PropertiesService.getUserProperties();
-  return {
-    name: userProperties.getProperty('userName'),
-    phone: userProperties.getProperty('userPhone'),
-    reminderDays: userProperties.getProperty('reminderDays'),
-  };
+function countByLanguage_(langData) {
+  return langData.reduce((acc, [lang]) => {
+    const key = toText_(lang) || 'Not Specified';
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
 }
